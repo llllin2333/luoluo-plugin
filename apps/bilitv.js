@@ -13,6 +13,7 @@ let CONFIG_YAML = YAML.parse(
 
 const returnVideo = true // 是否返回原视频
 const regB23 = /b23\.tv\\?\/\w{7}/
+const regBili = /bili2233\.cn\\?\/\w{7}/
 const regBV = /BV1\w{9}/
 const regAV = /av\d+/
 const regMD = /md\d+/ // 番剧md号
@@ -53,6 +54,10 @@ export class bilitv extends plugin {
         },
         {
           reg: regB23,
+          fnc: 'jxsp'
+        },
+        {
+          reg: regBili,
           fnc: 'jxsp'
         },
         {
@@ -113,6 +118,20 @@ export class bilitv extends plugin {
         }
       } catch (e) {
         fail(e, '解析B23链接失败', e.msg)
+        return true
+      }
+    } else if (e.msg.match(regBili)) {
+      try {
+        bvid = regBV.exec(
+          (await fetch('https://' + regBili.exec(e.msg)[0].replace(/\\/g, '')))
+            .url
+        )
+        if (bvid == null) {
+          fail(e, '解析Bili链接失败', e.msg)
+          return true
+        }
+      } catch (e) {
+        fail(e, '解析Bili链接失败', e.msg)
         return true
       }
     } else {
